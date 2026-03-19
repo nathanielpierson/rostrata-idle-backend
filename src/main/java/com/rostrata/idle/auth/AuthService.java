@@ -37,7 +37,11 @@ public class AuthService {
         );
 
         User saved = userRepository.save(user);
-        return new UserResponse(saved.getId(), saved.getEmail(), saved.getUsername());
+        return toUserResponse(saved);
+    }
+
+    public UserResponse toUserResponse(User user) {
+        return new UserResponse(user.getId(), user.getEmail(), user.getUsername());
     }
 }
 
