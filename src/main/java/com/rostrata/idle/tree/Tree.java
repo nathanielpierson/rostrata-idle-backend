@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 
 @Entity
@@ -21,8 +22,9 @@ public class Tree {
     @Column(nullable = false)
     private Integer secondsToChop;
 
-    @Column(nullable = false)
-    private Integer imageUrl;
+    @Lob
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String imageUrl;
 
     @Column(nullable = false)
     private Integer levelRequirement;
@@ -30,7 +32,7 @@ public class Tree {
     protected Tree() {
     }
 
-    public Tree(String name, Integer secondsToChop, Integer imageUrl, Integer levelRequirement) {
+    public Tree(String name, Integer secondsToChop, String imageUrl, Integer levelRequirement) {
         this.name = name;
         this.secondsToChop = secondsToChop;
         this.imageUrl = imageUrl;
@@ -57,11 +59,11 @@ public class Tree {
         this.secondsToChop = secondsToChop;
     }
 
-    public Integer getImageUrl() {
+    public String getImageUrl() {
         return imageUrl;
     }
 
-    public void setImageUrl(Integer imageUrl) {
+    public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
 
