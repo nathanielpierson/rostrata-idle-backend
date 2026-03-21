@@ -35,8 +35,13 @@ public class TreeService {
         int secondsToChop = parseTimeToSeconds(request.timeToChop());
 
         Optional<Tree> existing = treeRepository.findByName(name);
+        if (existing.isEmpty()) {
+            // Match legacy rows whose display name drifted (e.g. "Douglas Fir" vs "Douglasfir")
+            existing = findExistingByNormalizedName(name);
+        }
         if (existing.isPresent()) {
             Tree tree = existing.get();
+            tree.setName(name);
             tree.setSecondsToChop(secondsToChop);
             tree.setImageUrl(imageUrl);
             tree.setLevelRequirement(levelRequirement);
@@ -46,6 +51,21 @@ public class TreeService {
         return treeRepository.save(new Tree(name, secondsToChop, imageUrl, levelRequirement));
     }
 
+    /**
+     * Finds a tree whose name matches after lowercasing and removing all whitespace, so re-seeding
+     * updates the same DB row even if spelling/spacing changed between app versions.
+     */
+    private Optional<Tree> findExistingByNormalizedName(String name) {
+        String target = normalizeTreeName(name);
+        return treeRepository.findAll().stream()
+                .filter(t -> normalizeTreeName(t.getName()).equals(target))
+                .findFirst();
+    }
+
+    private static String normalizeTreeName(String name) {
+        return name.toLowerCase().replaceAll("\\s+", "");
+    }
+
     @Transactional
     public List<Tree> seedDefaultTrees() {
         // Values provided by you:
@@ -53,7 +73,7 @@ public class TreeService {
         List<TreeCreateRequest> defaults = List.of(
                 new TreeCreateRequest(
                         "Bur Oak",
-                        "https://scontent.fric1-2.fna.fbcdn.net/v/t51.75761-15/500482681_18323013763204797_5185688588855585874_n.jpg?stp=dst-jpegr_s1080x2048_tt6&_nc_cat=106&ccb=1-7&_nc_sid=13d280&_nc_ohc=ECYjqqC5NO0Q7kNvwEZ9Wdm&_nc_oc=Adn4-Nef1KXxlIdIoD6ZwWHVDHK_jH9O9OC7gtJ5fJc0Q6FUKBPcfBMJIo9QdckrBKQ&_nc_zt=23&se=-1&_nc_ht=scontent.fric1-2.fna&_nc_gid=ID0GTwlnUcOMZMIo2FvgmQ&_nc_ss=8&oh=00_Afzllo0n5zBwnmHEPhtZYeNlL_dABO3HvOXDKartkMNlcw&oe=69B39BD4",
+                        "https://www.adventuresci.org/wp-content/uploads/2021/10/Buroak1.png",
                         1,
                         "10s"
                 ),
@@ -71,7 +91,7 @@ public class TreeService {
                 ),
                 new TreeCreateRequest(
                         "Basswood",
-                        "Basswood_forest_(14871993438).jpg",
+                        "https://upload.wikimedia.org/wikipedia/commons/2/21/Basswood_forest_%2814871993438%29.jpg",
                         40,
                         "20s"
                 ),
@@ -89,7 +109,7 @@ public class TreeService {
                 ),
                 new TreeCreateRequest(
                         "Douglasfir",
-                        "https://shop.arborday.org/treeguide/286",
+                        "https://shop-static.arborday.org/media/0000454_douglasfir_510.jpg",
                         70,
                         "35s"
                 ),
