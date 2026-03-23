@@ -9,7 +9,8 @@ public record TreeCreateRequest(
         String name,
         String imageUrl,
         Integer levelRequirement,
-        String timeToChop
+        String timeToChop,
+        Integer xpGiven
 ) {
 }
 

@@ -29,6 +29,9 @@ public class User {
     @Column(nullable = false)
     private Instant createdAt = Instant.now();
 
+    @Column(nullable = false)
+    private Long woodcuttingXp = 0L;
+
     protected User() {
     }
 
@@ -69,6 +72,14 @@ public class User {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public Long getWoodcuttingXp() {
+        return woodcuttingXp;
+    }
+
+    public void setWoodcuttingXp(Long woodcuttingXp) {
+        this.woodcuttingXp = woodcuttingXp;
     }
 }
 

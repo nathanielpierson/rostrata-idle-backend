@@ -1,5 +1,7 @@
 package com.rostrata.idle.tree;
 
+import com.rostrata.idle.user.User;
+import com.rostrata.idle.user.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,11 +14,13 @@ import java.util.regex.Pattern;
 public class TreeService {
 
     private final TreeRepository treeRepository;
+    private final UserRepository userRepository;
 
     private static final Pattern TIME_TOKEN = Pattern.compile("(\\d+)([ms])");
 
-    public TreeService(TreeRepository treeRepository) {
+    public TreeService(TreeRepository treeRepository, UserRepository userRepository) {
         this.treeRepository = treeRepository;
+        this.userRepository = userRepository;
     }
 
     public List<Tree> getAllTrees() {
@@ -31,6 +35,10 @@ public class TreeService {
         if (levelRequirement == null) {
             throw new IllegalArgumentException("levelRequirement is required");
         }
+        Integer xpGiven = request.xpGiven();
+        if (xpGiven == null || xpGiven < 0) {
+            throw new IllegalArgumentException("xpGiven must be >= 0");
+        }
 
         int secondsToChop = parseTimeToSeconds(request.timeToChop());
 
@@ -40,10 +48,11 @@ public class TreeService {
             tree.setSecondsToChop(secondsToChop);
             tree.setImageUrl(imageUrl);
             tree.setLevelRequirement(levelRequirement);
+            tree.setXpGiven(xpGiven);
             return treeRepository.save(tree);
         }
 
-        return treeRepository.save(new Tree(name, secondsToChop, imageUrl, levelRequirement));
+        return treeRepository.save(new Tree(name, secondsToChop, imageUrl, levelRequirement, xpGiven));
     }
 
     @Transactional
@@ -55,65 +64,91 @@ public class TreeService {
                         "Bur Oak",
                         "https://scontent.fric1-2.fna.fbcdn.net/v/t51.75761-15/500482681_18323013763204797_5185688588855585874_n.jpg?stp=dst-jpegr_s1080x2048_tt6&_nc_cat=106&ccb=1-7&_nc_sid=13d280&_nc_ohc=ECYjqqC5NO0Q7kNvwEZ9Wdm&_nc_oc=Adn4-Nef1KXxlIdIoD6ZwWHVDHK_jH9O9OC7gtJ5fJc0Q6FUKBPcfBMJIo9QdckrBKQ&_nc_zt=23&se=-1&_nc_ht=scontent.fric1-2.fna&_nc_gid=ID0GTwlnUcOMZMIo2FvgmQ&_nc_ss=8&oh=00_Afzllo0n5zBwnmHEPhtZYeNlL_dABO3HvOXDKartkMNlcw&oe=69B39BD4",
                         1,
-                        "10s"
+                        "10s",
+                        30
                 ),
                 new TreeCreateRequest(
                         "Sawtooth Oak",
                         "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTeLO0UQ6SxrSZfxiPxOoy7Wh9MQzlh4nYJQA&s",
                         5,
-                        "7s"
+                        "7s",
+                        35
                 ),
                 new TreeCreateRequest(
                         "October Glory Maple",
                         "https://live.staticflickr.com/4517/38712137901_0b37ac4858_b.jpg",
                         15,
-                        "15s"
+                        "15s",
+                        120
                 ),
                 new TreeCreateRequest(
                         "Basswood",
                         "Basswood_forest_(14871993438).jpg",
                         40,
-                        "20s"
+                        "20s",
+                        175
                 ),
                 new TreeCreateRequest(
                         "Rostratian Sweetgum",
                         "https://upload.wikimedia.org/wikipedia/commons/6/6a/2014-11-02_13_06_29_Sweet_Gum_during_autumn_along_Lower_Ferry_Road_in_Ewing%2C_New_Jersey.JPG",
                         50,
-                        "25s"
+                        "25s",
+                        240
                 ),
                 new TreeCreateRequest(
                         "Loblolly Pine",
                         "https://live.staticflickr.com/65535/5454648928_2ffa54e74e_b.jpg",
                         60,
-                        "30s"
+                        "30s",
+                        333
                 ),
                 new TreeCreateRequest(
                         "Douglasfir",
                         "https://shop.arborday.org/treeguide/286",
                         70,
-                        "35s"
+                        "35s",
+                        400
                 ),
                 new TreeCreateRequest(
                         "Bald Cypress",
                         "https://live.staticflickr.com/747/20743193769_3d9784e77c_b.jpg",
                         80,
-                        "45s"
+                        "45s",
+                        600
                 ),
                 new TreeCreateRequest(
                         "Sycamore",
                         "https://upload.wikimedia.org/wikipedia/commons/f/fd/American-Sycamore-Bark.jpg",
                         90,
-                        "1m"
+                        "1m",
+                        840
                 ),
                 new TreeCreateRequest(
                         "Redwood",
                         "https://www.sustainability-times.com/wp-content/uploads/2024/01/redwood.webp",
                         95,
-                        "1m20s"
+                        "1m20s",
+                        1250
                 )
         );
 
         return defaults.stream().map(this::createOrUpdate).toList();
+    }
+
+    @Transactional
+    public ChopResult chopTree(Long userId, Long treeId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+        Tree tree = treeRepository.findById(treeId)
+                .orElseThrow(() -> new IllegalArgumentException("Tree not found: " + treeId));
+
+        long xpToAdd = tree.getXpGiven();
+        long before = user.getWoodcuttingXp() == null ? 0L : user.getWoodcuttingXp();
+        long after = before + xpToAdd;
+        user.setWoodcuttingXp(after);
+        userRepository.save(user);
+
+        return new ChopResult(user.getId(), tree.getId(), xpToAdd, after);
     }
 
     private static String requireNonBlank(String value, String fieldName) {
@@ -167,6 +202,9 @@ public class TreeService {
         }
 
         return totalSeconds;
+    }
+
+    public record ChopResult(Long userId, Long treeId, Long xpGranted, Long woodcuttingXpTotal) {
     }
 }
 

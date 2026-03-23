@@ -27,14 +27,18 @@ public class Tree {
     @Column(nullable = false)
     private Integer levelRequirement;
 
+    @Column(nullable = false)
+    private Integer xpGiven;
+
     protected Tree() {
     }
 
-    public Tree(String name, Integer secondsToChop, String imageUrl, Integer levelRequirement) {
+    public Tree(String name, Integer secondsToChop, String imageUrl, Integer levelRequirement, Integer xpGiven) {
         this.name = name;
         this.secondsToChop = secondsToChop;
         this.imageUrl = imageUrl;
         this.levelRequirement = levelRequirement;
+        this.xpGiven = xpGiven;
     }
 
     public Long getId() {
@@ -71,6 +75,14 @@ public class Tree {
 
     public void setLevelRequirement(Integer levelRequirement) {
         this.levelRequirement = levelRequirement;
+    }
+
+    public Integer getXpGiven() {
+        return xpGiven;
+    }
+
+    public void setXpGiven(Integer xpGiven) {
+        this.xpGiven = xpGiven;
     }
 }
 
