@@ -32,6 +32,15 @@ public class User {
     @Column(nullable = false)
     private Long woodcuttingXp = 0L;
 
+    @Column(nullable = false)
+    private Long fishingXp = 0L;
+
+    @Column(nullable = false)
+    private Long miningXp = 0L;
+
+    @Column(nullable = false)
+    private Long huntingXp = 0L;
+
     protected User() {
     }
 
@@ -80,6 +89,30 @@ public class User {
 
     public void setWoodcuttingXp(Long woodcuttingXp) {
         this.woodcuttingXp = woodcuttingXp;
+    }
+
+    public Long getFishingXp() {
+        return fishingXp;
+    }
+
+    public void setFishingXp(Long fishingXp) {
+        this.fishingXp = fishingXp;
+    }
+
+    public Long getMiningXp() {
+        return miningXp;
+    }
+
+    public void setMiningXp(Long miningXp) {
+        this.miningXp = miningXp;
+    }
+
+    public Long getHuntingXp() {
+        return huntingXp;
+    }
+
+    public void setHuntingXp(Long huntingXp) {
+        this.huntingXp = huntingXp;
     }
 }
 

@@ -41,7 +41,15 @@ public class AuthService {
     }
 
     public UserResponse toUserResponse(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getUsername());
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getWoodcuttingXp(),
+                user.getFishingXp(),
+                user.getMiningXp(),
+                user.getHuntingXp()
+        );
     }
 }
 

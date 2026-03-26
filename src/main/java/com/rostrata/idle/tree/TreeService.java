@@ -156,19 +156,18 @@ public class TreeService {
     }
 
     @Transactional
-    public ChopResult chopTree(Long userId, Long treeId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + userId));
+    public ChopResult chopTree(User user, Long treeId) {
+        User managedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + user.getId()));
         Tree tree = treeRepository.findById(treeId)
                 .orElseThrow(() -> new IllegalArgumentException("Tree not found: " + treeId));
 
         long xpToAdd = tree.getXpGiven();
-        long before = user.getWoodcuttingXp() == null ? 0L : user.getWoodcuttingXp();
+        long before = managedUser.getWoodcuttingXp() == null ? 0L : managedUser.getWoodcuttingXp();
         long after = before + xpToAdd;
-        user.setWoodcuttingXp(after);
-        userRepository.save(user);
-
-        return new ChopResult(user.getId(), tree.getId(), xpToAdd, after);
+        managedUser.setWoodcuttingXp(after);
+        userRepository.save(managedUser);
+        return new ChopResult(managedUser.getId(), tree.getId(), xpToAdd, after);
     }
 
     private static String requireNonBlank(String value, String fieldName) {

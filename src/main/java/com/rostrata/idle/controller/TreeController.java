@@ -5,13 +5,14 @@ import com.rostrata.idle.tree.TreeCreateRequest;
 import com.rostrata.idle.tree.TreeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import com.rostrata.idle.auth.CustomUserDetails;
 
 import java.util.List;
 
@@ -43,9 +44,12 @@ public class TreeController {
     @PostMapping("/trees/{treeId}/chop")
     public ResponseEntity<TreeService.ChopResult> chopTree(
             @PathVariable Long treeId,
-            @RequestParam Long userId
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        TreeService.ChopResult result = treeService.chopTree(userId, treeId);
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        TreeService.ChopResult result = treeService.chopTree(userDetails.getUser(), treeId);
         return ResponseEntity.ok(result);
     }
 
