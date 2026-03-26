@@ -18,10 +18,14 @@ public class SecurityConfig {
         http
                 // Must be enabled so preflight + credentialed requests get CORS headers from CorsConfigurationSource.
                 .cors(Customizer.withDefaults())
-                // Learning mode: keep API fully open while building features.
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/health", "/h2-console/**").permitAll()
+                        .requestMatchers("/api/auth/register").permitAll()
+                        .requestMatchers("/trees", "/trees/seed-defaults").permitAll()
+                        .requestMatchers("/api/auth/me", "/trees/*/chop").authenticated()
                         .anyRequest().permitAll())
+                .httpBasic(Customizer.withDefaults())
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         return http.build();
