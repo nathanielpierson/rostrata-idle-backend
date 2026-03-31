@@ -23,7 +23,9 @@ public class SecurityConfig {
                         .requestMatchers("/health", "/h2-console/**").permitAll()
                         .requestMatchers("/api/auth/register").permitAll()
                         .requestMatchers("/trees", "/trees/seed-defaults").permitAll()
-                        .requestMatchers("/api/auth/me", "/trees/*/chop").authenticated()
+                        .requestMatchers("/fish", "/fish/seed-defaults").permitAll()
+                        .requestMatchers("/storage").authenticated()
+                        .requestMatchers("/api/auth/me", "/trees/*/chop", "/fish/*/catch").authenticated()
                         .anyRequest().permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));

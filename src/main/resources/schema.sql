@@ -17,3 +17,8 @@ ALTER TABLE IF EXISTS users
 
 ALTER TABLE IF EXISTS users
     ADD COLUMN IF NOT EXISTS hunting_xp BIGINT NOT NULL DEFAULT 0;
+
+-- fish.image_url: long URLs (after Hibernate creates the table on first run).
+ALTER TABLE IF EXISTS fish
+    ALTER COLUMN image_url TYPE TEXT
+    USING image_url::TEXT;

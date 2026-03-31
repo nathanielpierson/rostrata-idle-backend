@@ -1,5 +1,7 @@
 package com.rostrata.idle.tree;
 
+import com.rostrata.idle.storage.StorageDelta;
+import com.rostrata.idle.storage.StorageService;
 import com.rostrata.idle.user.User;
 import com.rostrata.idle.user.UserRepository;
 import org.springframework.stereotype.Service;
@@ -15,12 +17,14 @@ public class TreeService {
 
     private final TreeRepository treeRepository;
     private final UserRepository userRepository;
+    private final StorageService storageService;
 
     private static final Pattern TIME_TOKEN = Pattern.compile("(\\d+)([ms])");
 
-    public TreeService(TreeRepository treeRepository, UserRepository userRepository) {
+    public TreeService(TreeRepository treeRepository, UserRepository userRepository, StorageService storageService) {
         this.treeRepository = treeRepository;
         this.userRepository = userRepository;
+        this.storageService = storageService;
     }
 
     public List<Tree> getAllTrees() {
@@ -167,7 +171,22 @@ public class TreeService {
         long after = before + xpToAdd;
         managedUser.setWoodcuttingXp(after);
         userRepository.save(managedUser);
-        return new ChopResult(managedUser.getId(), tree.getId(), xpToAdd, after);
+
+        // Each chop grants 1 log into the player's storage.
+        // Item key is based on the tree id so it stays stable even if display name changes.
+        String itemKey = "woodcutting_log_" + tree.getId();
+        String itemName = tree.getName() + " Logs";
+        String itemImageUrl = tree.getImageUrl();
+
+        StorageDelta delta = storageService.addToStorage(
+                managedUser,
+                itemKey,
+                itemName,
+                itemImageUrl,
+                1L
+        );
+
+        return new ChopResult(managedUser.getId(), tree.getId(), xpToAdd, after, List.of(delta));
     }
 
     private static String requireNonBlank(String value, String fieldName) {
@@ -223,7 +242,13 @@ public class TreeService {
         return totalSeconds;
     }
 
-    public record ChopResult(Long userId, Long treeId, Long xpGranted, Long woodcuttingXpTotal) {
+    public record ChopResult(
+            Long userId,
+            Long treeId,
+            Long xpGranted,
+            Long woodcuttingXpTotal,
+            List<StorageDelta> storageDeltas
+    ) {
     }
 }
 
