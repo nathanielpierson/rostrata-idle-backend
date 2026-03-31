@@ -44,11 +44,11 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
-        <!-- H2 only for tests (so Spring context loads without requiring Postgres). -->
+        <!-- H2: tests + optional local dev profile (application-dev.properties). -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
+            <scope>runtime</scope>
         </dependency>
 
         <dependency>
