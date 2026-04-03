@@ -22,3 +22,6 @@ ALTER TABLE IF EXISTS users
 ALTER TABLE IF EXISTS fish
     ALTER COLUMN image_url TYPE TEXT
     USING image_url::TEXT;
+
+-- Replaced single time_to_fish with min_time_to_fish / max_time_to_fish (Hibernate adds those).
+ALTER TABLE IF EXISTS fish DROP COLUMN IF EXISTS time_to_fish;
