@@ -21,8 +21,11 @@ public class Fish {
     @Column(name = "level_required", nullable = false)
     private Integer levelRequirement;
 
-    @Column(name = "time_to_fish", nullable = false)
-    private Integer secondsToFish;
+    @Column(name = "min_time_to_fish", nullable = false)
+    private Integer minSecondsToFish;
+
+    @Column(name = "max_time_to_fish", nullable = false)
+    private Integer maxSecondsToFish;
 
     @Column(name = "xp_given", nullable = false)
     private Integer xpGiven;
@@ -33,10 +36,18 @@ public class Fish {
     protected Fish() {
     }
 
-    public Fish(String name, Integer levelRequirement, Integer secondsToFish, Integer xpGiven, String imageUrl) {
+    public Fish(
+            String name,
+            Integer levelRequirement,
+            Integer minSecondsToFish,
+            Integer maxSecondsToFish,
+            Integer xpGiven,
+            String imageUrl
+    ) {
         this.name = name;
         this.levelRequirement = levelRequirement;
-        this.secondsToFish = secondsToFish;
+        this.minSecondsToFish = minSecondsToFish;
+        this.maxSecondsToFish = maxSecondsToFish;
         this.xpGiven = xpGiven;
         this.imageUrl = imageUrl;
     }
@@ -61,12 +72,20 @@ public class Fish {
         this.levelRequirement = levelRequirement;
     }
 
-    public Integer getSecondsToFish() {
-        return secondsToFish;
+    public Integer getMinSecondsToFish() {
+        return minSecondsToFish;
     }
 
-    public void setSecondsToFish(Integer secondsToFish) {
-        this.secondsToFish = secondsToFish;
+    public void setMinSecondsToFish(Integer minSecondsToFish) {
+        this.minSecondsToFish = minSecondsToFish;
+    }
+
+    public Integer getMaxSecondsToFish() {
+        return maxSecondsToFish;
+    }
+
+    public void setMaxSecondsToFish(Integer maxSecondsToFish) {
+        this.maxSecondsToFish = maxSecondsToFish;
     }
 
     public Integer getXpGiven() {
